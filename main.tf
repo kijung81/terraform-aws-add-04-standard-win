@@ -46,7 +46,7 @@ resource "aws_instance" "golfzon-windows" {
 resource "aws_network_interface" "golfzon-nic" {
   subnet_id   = aws_subnet.golfzon-subnet.id
   private_ips = [var.priv_ip]
-  #security_groups = [""]
+  security_groups = [aws_security_group.win.id]
 
   tags = {
     Name = "${var.prefix}-nic"
@@ -96,6 +96,21 @@ resource "aws_internet_gateway" "gw" {
   }
 }
 
+resource "aws_route_table" "rt_igw" {
+  vpc_id = aws_vpc.golfzon-vpc.id
 
+  route {
+    cidr_block = "0.0.0.0/0" 
+    gateway_id = aws_internet_gateway.gw.id
+  }
+  tags = {
+    Name = "${var.prefix}-rt-igw"
+  }  
+}
+
+resource "aws_route_table_association" "rt_ass" {
+  subnet_id      = aws_subnet.golfzon-subnet.id
+  route_table_id = aws_route_table.rt_igw.id
+}
 
 
