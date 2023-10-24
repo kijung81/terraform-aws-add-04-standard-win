@@ -1,11 +1,11 @@
 
-data "template_file" "hostname_init" {
-  template = file("${path.module}/script.tpl")
-  vars = {
-    admin_password = var.admin_password
-    host_name = var.host_name
-  }
-}
+# data "templatefile" "hostname_init" {
+#   template = file("${path.module}/script.tftpl")
+#   vars = {
+#     admin_password = var.admin_password
+#     host_name = var.host_name
+#   }
+# }
 
 data "aws_ami" "windows" {
   most_recent = true
@@ -31,11 +31,14 @@ resource "aws_instance" "golfzon-windows" {
     device_index         = 0
   }
 
-  key_name = "Terraform-PoV	"
-  user_data = data.template_file.hostname_init.rendered
+  key_name = "Terraform-PoV"
+  user_data = templatefile("${path.module}/script.tftpl", { 
+    admin_password = var.admin_password,
+    host_name = var.host_name
+  })
 
   tags = {
-    Name = "${var.prefix}-eip"
+    Name = "${var.prefix}-ec2"
   }
 }
 
@@ -67,7 +70,7 @@ resource "aws_eip" "golfzon-eip" {
 
 ## test vpc: golfzon-vpc (10.70.0.0/16)
 resource "aws_vpc" "golfzon-vpc" {
-  cidr_block = "10.70.0.0/16"
+  cidr_block = var.vpc_cidr
 
   tags = {
     Name = "${var.prefix}-vpc"
@@ -77,11 +80,11 @@ resource "aws_vpc" "golfzon-vpc" {
 ## test subnet on golfzon-vpc: golfzon-subnet (10.70.1.0/24)
 resource "aws_subnet" "golfzon-subnet" {
   vpc_id            = aws_vpc.golfzon-vpc.id
-  cidr_block        = "10.70.1.0/24"
+  cidr_block        = var.subnet_cidr
   availability_zone = "ap-northeast-2a"
 
   tags = {
-    Name = "${var.prefix}-pub-subnet"
+    Name = "${var.prefix}-pubsbn"
   }
 }
 

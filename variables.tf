@@ -6,11 +6,13 @@ variable "region" {
 variable "priv_ip" {
   description = "customed private ip for instance"
   type        = string
+  default     = "10.70.1.4"
 }
 
 variable "host_name" {
   description = "customed hostname for instance"
   type        = string
+  default     = "tf-poc-win"
 }
 
 variable "admin_password" {
@@ -19,15 +21,15 @@ variable "admin_password" {
   default     = "golfzonaws1!"
 }
 
-## Terraform-PoC-9-ec2-Multi-vpc ##  10.60.0.0/16
-variable "vpc_id" {
-  description = "vpc id"
+## Terraform-PoC-9-ec2-Multi-vpc ##  10.70.0.0/16
+variable "vpc_cidr" {
+  description = "vpc cidr"
   type = string
-  default = "vpc-09cd62d218db5f3a5"
+  default = "10.70.0.0/16"
 }
-## Terraform-PoC-9-ec2-Multi-vpc public subnet ## 10.60.0.0/20
-variable "subnet_id" {
-  default = "subnet-012d3f9fd2ab6b143"
+## Terraform-PoC-9-ec2-Multi-vpc public subnet ## 10.70.1.0/24
+variable "subnet_cidr" {
+  default = "10.70.1.0/24"
 }
 
 variable prefix {
