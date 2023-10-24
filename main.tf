@@ -1,9 +1,4 @@
-data "aws_vpc" "default" {
-  id = var.vpc_id
-}
-data "aws_subnet" "default" {
-  id = var.subnet_id
-}
+
 data "template_file" "hostname_init" {
   template = file("${path.module}/script.tpl")
   vars = {
@@ -46,7 +41,7 @@ resource "aws_instance" "golfzon-windows" {
 
 ## network interface for instance: 
 resource "aws_network_interface" "golfzon-nic" {
-  subnet_id   = data.aws_subnet.default.id
+  subnet_id   = aws_subnet.golfzon-subnet.id
   private_ips = [var.priv_ip]
   #security_groups = [""]
 
@@ -69,6 +64,35 @@ resource "aws_eip" "golfzon-eip" {
     aws_instance.golfzon-windows
   ]
 }
+
+## test vpc: golfzon-vpc (10.70.0.0/16)
+resource "aws_vpc" "golfzon-vpc" {
+  cidr_block = "10.70.0.0/16"
+
+  tags = {
+    Name = "${var.prefix}-vpc"
+  }
+}
+
+## test subnet on golfzon-vpc: golfzon-subnet (10.70.1.0/24)
+resource "aws_subnet" "golfzon-subnet" {
+  vpc_id            = aws_vpc.golfzon-vpc.id
+  cidr_block        = "10.70.1.0/24"
+  availability_zone = "ap-northeast-2a"
+
+  tags = {
+    Name = "${var.prefix}-pub-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.golfzon-vpc.id
+
+  tags = {
+    Name = "${var.prefix}-igw"
+  }
+}
+
 
 
 
